@@ -1,12 +1,25 @@
-import express, { Express, Response } from "express";
+import "reflect-metadata";
 
-const app: Express = express();
-const port = process.env.PORT || 3000;
+import config from "./config";
+import express from "express";
+import Logger from "./loaders/logger";
 
-app.get("/", (_req, res: Response) => {
-  res.send("Express + TypeScript Server!!!!");
-});
+async function startServer() {
+  const app = express();
+  await require("./loaders").default({ expressApp: app });
 
-app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at https://localhost:${port}`);
-});
+  app
+    .listen(config.port, () => {
+      Logger.info(`
+      ################################################
+      🛡️  Server listening on port: ${config.port} 🛡️
+      ################################################
+    `);
+    })
+    .on("error", (err) => {
+      Logger.error(err);
+      process.exit(1);
+    });
+}
+
+startServer();
